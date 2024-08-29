@@ -55,14 +55,16 @@ def print_statistics(total_commits, total_contributors, contributors, organizati
     """분석 결과를 출력합니다."""
     print(f"전체 커밋 수: {total_commits}")
     print(f"전체 기여자 수: {total_contributors}")
-    print("\n기여자별 커밋 수:")
     
-    for contributor, info in contributors.items():
-        print(f"  {contributor} ({info['organization']}): {info['commits']} 커밋")
-    
-    print("\n조직별 기여자 수:")
-    for organization, count in organization_counter.items():
+    print("\n조직별 기여자 수 (내림차순):")
+    for organization, count in organization_counter.most_common():
         print(f"  {organization}: {count} 명")
+    
+    print("\n개인별 커밋 수 (상위 20명, 내림차순):")
+    sorted_contributors = sorted(contributors.items(), key=lambda item: item[1]['commits'], reverse=True)[:20]
+    
+    for contributor, info in sorted_contributors:
+        print(f"  {contributor} ({info['organization']}): {info['commits']} 커밋")
 
 if __name__ == "__main__":
     repo_url = input("Git 리포지토리 URL을 입력하세요: ")
