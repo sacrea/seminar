@@ -2,15 +2,26 @@ import os
 import subprocess
 from collections import Counter
 
-def clone_repository(repo_url, clone_dir):
-    """Git 리포지토리를 클론합니다."""
-    if not os.path.exists(clone_dir):
-        os.makedirs(clone_dir)
-    try:
-        subprocess.run(['git', 'clone', repo_url, clone_dir], check=True)
-        print(f"리포지토리 {repo_url}가 {clone_dir}에 클론되었습니다.")
-    except subprocess.CalledProcessError as e:
-        print(f"리포지토리 클론 실패: {e}")
+def clone_or_update_repository(repo_url):
+    """Git 리포지토리를 클론하거나, 이미 존재하는 경우 최신 상태로 업데이트합니다."""
+    repo_name = repo_url.split('/')[-1].replace('.git', '')
+    clone_dir = os.path.join(os.getcwd(), repo_name)
+    
+    if os.path.exists(clone_dir):
+        print(f"디렉토리 '{clone_dir}'이 이미 존재합니다. 최신 코드로 업데이트합니다.")
+        try:
+            subprocess.run(['git', 'pull'], cwd=clone_dir, check=True)
+            print(f"리포지토리 {repo_name}가 최신 상태로 업데이트되었습니다.")
+        except subprocess.CalledProcessError as e:
+            print(f"리포지토리 업데이트 실패: {e}")
+    else:
+        try:
+            subprocess.run(['git', 'clone', repo_url], check=True)
+            print(f"리포지토리 {repo_url}가 {clone_dir}에 클론되었습니다.")
+        except subprocess.CalledProcessError as e:
+            print(f"리포지토리 클론 실패: {e}")
+    
+    return clone_dir
 
 def get_git_log(clone_dir):
     """Git 로그를 가져옵니다."""
@@ -68,9 +79,8 @@ def print_statistics(total_commits, total_contributors, contributors, organizati
 
 if __name__ == "__main__":
     repo_url = input("Git 리포지토리 URL을 입력하세요: ")
-    clone_dir = "cloned_repo"
     
-    clone_repository(repo_url, clone_dir)
+    clone_dir = clone_or_update_repository(repo_url)
     
     log_data = get_git_log(clone_dir)
     
