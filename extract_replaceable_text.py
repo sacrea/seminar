@@ -12,6 +12,9 @@ def extract_var_text_with_exclusions(folder_path, exclusion_patterns):
     # 알파벳이 포함된 텍스트만 허용하는 정규식
     alphabet_pattern = re.compile(r'[A-Za-z]')
     
+    # 로마 숫자와 마침표를 포함한 패턴을 찾기 위한 정규식
+    roman_numeral_pattern = re.compile(r'\b[ivxIVX]+\.\b')
+
     # 폴더 내 모든 파일 검색
     for root, dirs, files in os.walk(folder_path):
         for file in files:
@@ -26,9 +29,13 @@ def extract_var_text_with_exclusions(folder_path, exclusion_patterns):
                 if matches:
                     filtered_matches = []
                     for match in matches:
-                        # 제외 조건: 1) 정규식 패턴과 매칭되는 텍스트 2) 알파벳이 포함되지 않은 텍스트
+                        # 제외 조건:
+                        # 1) 정규식 패턴과 매칭되는 텍스트
+                        # 2) 알파벳이 포함되지 않은 텍스트
+                        # 3) 로마 숫자 뒤에 마침표가 있는 텍스트
                         if (not any(compiled_pattern.search(match) for compiled_pattern in compiled_exclusions)
-                            and alphabet_pattern.search(match)):
+                            and alphabet_pattern.search(match)
+                            and not roman_numeral_pattern.search(match)):
                             filtered_matches.append(match)
                     
                     if filtered_matches:
