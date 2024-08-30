@@ -22,12 +22,13 @@ def extract_var_text_with_exclusions(folder_path, exclusion_patterns):
                 if matches:
                     filtered_matches = []
                     for match in matches:
-                        # 제외 리스트에 포함된 텍스트는 건너뛰기
-                        if not any(compiled_pattern.search(match) for compiled_pattern in compiled_exclusions):
+                        # 제외 조건: 1) 정규식 패턴과 매칭되는 텍스트 2) 텍스트 길이가 2 이하인 경우
+                        if (not any(compiled_pattern.search(match) for compiled_pattern in compiled_exclusions)
+                            and len(match) > 2):
                             filtered_matches.append(match)
                     
                     if filtered_matches:
-                        print(f"--- File: {file_path} ---")
+                        print(f"--- File: {file} ---")  # 파일 경로 대신 파일명만 출력
                         for match in filtered_matches:
                             print(f"<var class=\"replaceable-license-text\">{match}</var>")
                         print("\n" + "="*50 + "\n")
